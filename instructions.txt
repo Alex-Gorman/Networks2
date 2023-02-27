@@ -1,0 +1,15 @@
+1. Sender should take as command line arguments the host name of receiver,
+port number of receiver, maximum sending window size, and timeout value (in
+seconds)
+
+2. The receiver should take as command line arguments, the port number it 
+should use and the receiving window size (r-max). 
+
+3. Sender reads line of text from stdin (getline()). 
+
+3. Each line of text should have a header added to it that includes a msg
+seq # and added to a queue of msgs. 
+
+4. Message sequence #'s should range from 0 to 7 (w wrap around). 
+
+5. 
