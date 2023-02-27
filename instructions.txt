@@ -7,9 +7,36 @@ should use and the receiving window size (r-max).
 
 3. Sender reads line of text from stdin (getline()). 
 
-3. Each line of text should have a header added to it that includes a msg
+4. Each line of text should have a header added to it that includes a msg
 seq # and added to a queue of msgs. 
 
-4. Message sequence #'s should range from 0 to 7 (w wrap around). 
+5. Message sequence #'s should range from 0 to 7 (w wrap around). 
 
-5. 
+6. Initial seq # value is 0. 
+
+7. If the # of msgs that have been sent to receiver and are still unacked is
+less that max sending window size, msg should be immediately sent to receiver.
+
+8. Each msg sent to receiver in UDP segment. Msgs removed from queue once 
+receipt is acked. 
+
+9. When receiver gets msg from sender, should be printed w seq #.
+
+10. To simulate corruption/loss msg, if line of text beginning w "Y" is input
+receiver should consider msg to have been correctly receiver, otherwise 
+receiver consider msg to be corrupted/dropped. 
+
+11. If msg considered correct receiver, according to rules of selective
+repeat sliding window protocol then receiver should return a cumulative ack
+(this could be a repeat of a previous ack). 
+
+12. To simulate possible corruption or loss of ack, receiver should first
+prompt for and read another line of text, if this 2nd line of text begins
+w a "Y" then receiver should send ack, otherwise ack should not be sent. 
+
+13. Using receiving window size (value r-max), receiver should buffer 
+out-of-order msgs until missing msgs received. 
+
+14. Rather than implementing an app proc that receiver would pass msgs to 
+(in order) whenever a msg could be delivered to app, receiver should print
+the message w prefix "Delivered:". 
