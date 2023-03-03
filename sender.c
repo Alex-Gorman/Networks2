@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
 
 	/* Queue of messages */
 	// LIST messages[20];
-	messages = ListCreate();
+	// messages = ListCreate();
 
 	/* Poll struct */
 	struct pollfd mypoll;
@@ -105,6 +105,30 @@ int main(int argc, char *argv[])
 
 
     while (1) {
+
+		/* Poll() to check for acks */
+		struct pollfd udp_fd;
+		udp_fd.fd = sockfd;
+		udp_fd.events = POLLIN;
+
+		int result = poll(&udp_fd, 1, 500);
+
+		if (result == -1) {
+			perror("poll");
+		} else if (result == 0) {
+			// printf("Timeout occured");
+		} else {
+			if (udp_fd.events & POLLIN) {
+				printf("got here\n");
+				if ((numbytes = recvfrom(sockfd, buf, MAXBUFLEN-1, 0, (struct sockaddr*)&p->ai_addr, &addr_len)) == -1) {
+            		perror("recvfrom");
+            		exit(1);
+	    		}
+				continue;
+			}
+		}
+
+		/* potentially send a message */
         printf("Enter message: ");
         size_t line_max = 0;
         getline(&msg, &line_max, stdin);
@@ -162,25 +186,26 @@ int main(int argc, char *argv[])
 			msgQueueIndexToAppend++;
 		}
 
-		struct pollfd udp_fd;
-		udp_fd.fd = sockfd;
-		udp_fd.events = POLLIN;
+		// /* Poll() to check for acks */
+		// struct pollfd udp_fd;
+		// udp_fd.fd = sockfd;
+		// udp_fd.events = POLLIN;
 
-		int result = poll(&udp_fd, 1, 500);
+		// int result = poll(&udp_fd, 1, 500);
 
-		if (result == -1) {
-			perror("poll");
-		} else if (result == 0) {
-			printf("Timeout occured");
-		} else {
-			if (udp_fd.events & POLLIN) {
-				printf("got here\n");
-				if ((numbytes = recvfrom(sockfd, buf, MAXBUFLEN-1, 0, (struct sockaddr*)&p->ai_addr, &addr_len)) == -1) {
-            		perror("recvfrom");
-            		exit(1);
-	    		}
-			}
-		}
+		// if (result == -1) {
+		// 	perror("poll");
+		// } else if (result == 0) {
+		// 	printf("Timeout occured");
+		// } else {
+		// 	if (udp_fd.events & POLLIN) {
+		// 		printf("got here\n");
+		// 		if ((numbytes = recvfrom(sockfd, buf, MAXBUFLEN-1, 0, (struct sockaddr*)&p->ai_addr, &addr_len)) == -1) {
+        //     		perror("recvfrom");
+        //     		exit(1);
+	    // 		}
+		// 	}
+		// }
 
 
 
