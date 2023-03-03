@@ -31,8 +31,10 @@ int main(int argc, char *argv[]) {
     // set up the server address and port
     memset(&servaddr, 0, sizeof(servaddr));
     servaddr.sin_family = AF_INET;
-    servaddr.sin_port = htons(PORT);
+    // servaddr.sin_port = htons(PORT);
+	servaddr.sin_port = htons(atoi(argv[2]));
     servaddr.sin_addr.s_addr = INADDR_ANY;
+	// servaddr.sin_addr.s_addr = inet_addr(argv[1]);
 
     if (argc != 5) {
         fprintf(stderr,"usage: sender hostname port window-size timeout(s)\n");

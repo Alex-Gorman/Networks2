@@ -31,7 +31,8 @@ int main(int argc, char *argv[]) {
     memset(&servaddr, 0, sizeof(servaddr));
     servaddr.sin_family = AF_INET;
     servaddr.sin_addr.s_addr = INADDR_ANY;
-    servaddr.sin_port = htons(PORT);
+    // servaddr.sin_port = htons(PORT);
+	servaddr.sin_port = htons(atoi(argv[1]));
 
     // bind the socket to the server address and port
     bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr));
