@@ -1,183 +1,233 @@
-/*
-** listener.c -- a datagram sockets "server" demo
-*/
-
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <netdb.h>
-// #include "list.h"
+#include <unistd.h>
 
-#define MYPORT "4950"	// the port users will be connecting to
+#define PORT 8888
 
-#define MAXBUFLEN 100
+struct myStruct {
+	int printed;
+	char message[100];
+    int delivered;
+    int init;
+    int index;
+    int acked;
+};
 
-// get sockaddr, IPv4 or IPv6:
-void *get_in_addr(struct sockaddr *sa)
-{
-	if (sa->sa_family == AF_INET) {
-		return &(((struct sockaddr_in*)sa)->sin_addr);
-	}
+int main(int argc, char *argv[]) {
+    int sockfd, n;
+    socklen_t len;
+    char buffer[1024];
+    struct sockaddr_in servaddr, cliaddr;
 
-	return &(((struct sockaddr_in6*)sa)->sin6_addr);
-}
+    // create a UDP socket
+    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 
-int main(int argc, char *argv[])
-{
+    // set up the server address and port
+    memset(&servaddr, 0, sizeof(servaddr));
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_addr.s_addr = INADDR_ANY;
+    servaddr.sin_port = htons(PORT);
 
-    if (argc != 3) {
-		fprintf(stderr,"usage: receiver port window-size \n");
-		exit(1);
-	}
+    // bind the socket to the server address and port
+    bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr));
 
-    if (atoi(argv[1]) < 30000 || atoi(argv[1]) > 40000) {
-        fprintf(stderr,"only user ports 30000-40000 \n");
-		exit(1);
-    }
+    /* message queue */
+	struct myStruct myArray[200];
 
-    // int windowSize = atoi(argv[2]);
+    /* message queue index */
+    // int msgQueueIndexToAppend = 0;
 
-	int sockfd;
-	struct addrinfo hints, *servinfo, *p;
-	int rv;
-	int numbytes;
-	struct sockaddr_storage their_addr;
-	char buf[MAXBUFLEN];
-	socklen_t addr_len;
-	// char s[INET6_ADDRSTRLEN];
+    int rWindow = atoi(argv[1]);
 
-	memset(&hints, 0, sizeof hints);
-	hints.ai_family = AF_INET6; // set to AF_INET to use IPv4
-	hints.ai_socktype = SOCK_DGRAM;
-	hints.ai_flags = AI_PASSIVE; // use my IP
+    while(1) {
+        len = sizeof(cliaddr);
 
-	if ((rv = getaddrinfo(NULL, argv[1], &hints, &servinfo)) != 0) {
-		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
-		return 1;
-	}
+        // receive a message from the client
+        n = recvfrom(sockfd, (char *)buffer, sizeof(buffer), MSG_WAITALL, (struct sockaddr *)&cliaddr, &len);
+        buffer[n] = '\0';
 
-	// loop through all the results and bind to the first we can
-	for(p = servinfo; p != NULL; p = p->ai_next) {
-		if ((sockfd = socket(p->ai_family, p->ai_socktype,
-				p->ai_protocol)) == -1) {
-			perror("listener: socket");
-			continue;
-		}
+        // print the message received from the client
+        // printf("Message received from client: %s\n", buffer);
+        // printf("Message received from client: %s", buffer);
 
-		if (bind(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
-			close(sockfd);
-			perror("listener: bind");
-			continue;
-		}
+        /* check if should send ack */
+	    char *y_for_send_ack = NULL;
 
-		break;
-	}
+        printf("Delivered: %s", buffer);
 
-	if (p == NULL) {
-		fprintf(stderr, "listener: failed to bind socket\n");
-		return 2;
-	}
+        // int rWindowMin = 0;
+        // for (int i = 0; i < 200; i++) {
+        //     if (myArray[i].init == 1);
+        //     else break;
+        //     if (myArray[i].acked == 0) rWindowMin++;
+        // }
 
-	freeaddrinfo(servinfo);
-
-	printf("listener: waiting to recvfrom...\n");
-
-	addr_len = sizeof their_addr;
-
-	/* check if should send ack */
-	char *y_for_send_ack = NULL;
+        // int rWindowMax = 0;
+        // for (int i = 0; i < 200; i++) {
+        //     if (myArray[i].init == 1);
+        //     else break;
+        //     if (myArray[i].acked == 0) rWindowMax++;
+        // }
 
 
 
-    while (1) {
-
-        if ((numbytes = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)) == -1) {
-            perror("recvfrom");
-            exit(1);
-	    }
-
-	    // printf("listener: got packet from %s\n", inet_ntop(their_addr.ss_family, get_in_addr((struct sockaddr *)&their_addr), s, sizeof s));
-        // printf("listener: packet is %d bytes long\n", numbytes);
-        buf[numbytes] = '\0';
-        // printf("listener: packet contains \"%s\"\n", buf);
-
-		// if (buf[1]=='Y') {
-		// 	printf("Delivered: %s", buf);
-		// }
-
-        // printf("Delivered: %s", buf);
-
-		printf("Enter Y if you want to send an ack back\n: ");
+        printf("Enter Y if you want to send an ack back: \n ");
         size_t line_max = 0;
         getline(&y_for_send_ack, &line_max, stdin);
 
-		if (y_for_send_ack[0]=='Y') {
+		// printf("Delivered: %s\n", buffer);
 
-			char seqNum = buf[0];
+        // for (int i = 0; i < 200; i++) {
+        //     if (myArray[i].init);
+        //     else break;
+        //     if (myArray[i].printed)
+        // }
+
+
+
+        struct myStruct myVar;
+
+        strcpy(myVar.message, buffer);
+
+        myVar.init = 1;
+
+        myVar.delivered = 0;
+
+        int num = buffer[0] - '0';
+        myVar.index = num;
+        myVar.printed = 0;
+
+        myVar.acked = 0;
+
+        // myArray[msgQueueIndexToAppend] = myVar;
+	    // msgQueueIndexToAppend++;
+
+        if (y_for_send_ack[0]=='Y') {
+
+            myVar.delivered = 1;
+            myVar.printed = 1;
+            myVar.acked = 1;
+
+
+            for (int i = myVar.index; i < 200; i = i + 8) {
+                if (myArray[i].init == 1) continue;
+                else {
+                    myArray[i] = myVar;
+                    break;
+                }
+            }
+
+            int p = 200;
+
+            for (int i = 0; i < 200; i++) {
+                if ((myArray[i].init) == 1);
+                else break;
+                if (myArray[i].printed == 0) p = i;
+            }
+
+            for (int i = p; i < 200; i++) {
+                if (myArray[i].init == 1);
+                else break;
+                if (myArray[i].acked == 0) break;
+                myArray[i].printed = 1;
+                printf("Delivered 2: %s", myArray[i].message);
+            }
+
+            // printf("buffer: %s", buffer);
+
+            // myVar.delivered = 1;
+
+			char seqNum = buffer[0];
 
 			switch (seqNum) {
 				case '0':
-					char *ackNum0 = "0";
-					sendto(sockfd, ackNum0, 1024, 0, (struct sockaddr*)&their_addr, sizeof(their_addr));
+					// char *ackNum0 = "0";
+					sendto(sockfd, (const char *)buffer, strlen(buffer), MSG_CONFIRM, (const struct sockaddr *)&cliaddr, len);
 					break;
 				case '1':
-					char *ackNum1 = "1";
-					sendto(sockfd, ackNum1, 1024, 0, (struct sockaddr*)&their_addr, sizeof(their_addr));
+					// char *ackNum1 = "1";
+					sendto(sockfd, (const char *)buffer, strlen(buffer), MSG_CONFIRM, (const struct sockaddr *)&cliaddr, len);
 					break;
 				case '2':
-					char *ackNum2 = "2";
-					sendto(sockfd, ackNum2, 1024, 0, (struct sockaddr*)&their_addr, sizeof(their_addr));
+					// char *ackNum2 = "2";
+					sendto(sockfd, (const char *)buffer, strlen(buffer), MSG_CONFIRM, (const struct sockaddr *)&cliaddr, len);
 					break;
-				// case '3':
-				// 	char *ackNum = "3";
-				// 	sendto(sockfd, ackNum, 1024, 0, (struct sockaddr*)&their_addr, sizeof(their_addr));
-				// 	break;
-				// case '4':
-				// 	char *ackNum = "4";
-				// 	sendto(sockfd, ackNum, 1024, 0, (struct sockaddr*)&their_addr, sizeof(their_addr));
-				// 	break;
-				// case '5':
-				// 	char *ackNum = "5";
-				// 	sendto(sockfd, ackNum, 1024, 0, (struct sockaddr*)&their_addr, sizeof(their_addr));
-				// 	break;
-				// case '6':
-				// 	char *ackNum = "6";
-				// 	sendto(sockfd, ackNum, 1024, 0, (struct sockaddr*)&their_addr, sizeof(their_addr));
-				// 	break;
-				// case '7':
-				// 	char *ackNum = "7";
-				// 	sendto(sockfd, ackNum, 1024, 0, (struct sockaddr*)&their_addr, sizeof(their_addr));
-				// 	break;
+				case '3':
+					// char *ackNum = "3";
+					sendto(sockfd, (const char *)buffer, strlen(buffer), MSG_CONFIRM, (const struct sockaddr *)&cliaddr, len);
+					break;
+				case '4':
+					// char *ackNum = "4";
+					sendto(sockfd, (const char *)buffer, strlen(buffer), MSG_CONFIRM, (const struct sockaddr *)&cliaddr, len);
+					break;
+				case '5':
+					// char *ackNum = "5";
+					sendto(sockfd, (const char *)buffer, strlen(buffer), MSG_CONFIRM, (const struct sockaddr *)&cliaddr, len);
+					break;
+				case '6':
+					// char *ackNum = "6";
+					sendto(sockfd, (const char *)buffer, strlen(buffer), MSG_CONFIRM, (const struct sockaddr *)&cliaddr, len);
+					break;
+				case '7':
+					// char *ackNum = "7";
+					sendto(sockfd, (const char *)buffer, strlen(buffer), MSG_CONFIRM, (const struct sockaddr *)&cliaddr, len);
+					break;
 				default:
 					printf("shouldnt be here \n");
 					break;
 			}
 
 
-			printf("Delivered: %s", buf);
+			// printf("Delivered: %s", buffer);
 			// char* value = "test";
 			// sendto(sockfd, value, 1024, 0, (struct sockaddr*)&their_addr, sizeof(their_addr));
-		}
+		} else {
+            for (int i = myVar.index; i < 200; i = i + 8) {
+                if (myArray[i].init == 1) continue;
+                else {
+                    myArray[i] = myVar;
+                    break;
+                }
+            }
+        }
 
-		// char* value = "test";
+        // myArray[msgQueueIndexToAppend] = myVar;
+	    // msgQueueIndexToAppend++;
 
-		// sendto(sockfd, value, 1024, 0, (struct sockaddr*)&their_addr, sizeof(their_addr));
+        // for (int i = myVar.index; i < 200; i = i + 8) {
+        //     if (myArray[i].init == 1) continue;
+        //     else {
+        //         myArray[i] = myVar;
+        //         break;
+        //     }
+        // }
 
-		// recvfrom(sockfd, buffer, 1024, 0, (struct sockaddr*)&client_addr, &addr_size);
-		// sendto(sockfd, value, 1024, 0, (struct sockaddr*)&client_addr, sizeof(client_addr));
+        // for (int i = 0; i < 200; i++) {
+        //     if (myArray[i].init);
+        //     else break;
+        //     if 
+        // }
 
 
 
-        
+
+
+        // char buffer2[] = "buffer 2\n";
+        // char buffer3[] = "buffer 3\n";
+
+        // // send a reply to the client
+        // sendto(sockfd, (const char *)buffer, strlen(buffer), MSG_CONFIRM, (const struct sockaddr *)&cliaddr, len);
+        // sendto(sockfd, (const char *)buffer2, strlen(buffer2), MSG_CONFIRM, (const struct sockaddr *)&cliaddr, len);
+        // sendto(sockfd, (const char *)buffer3, strlen(buffer3), MSG_CONFIRM, (const struct sockaddr *)&cliaddr, len);
     }
 
-	close(sockfd);
+    // close the socket
+    close(sockfd);
 
-	return 0;
+    return 0;
 }
