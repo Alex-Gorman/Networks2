@@ -1,6 +1,6 @@
-1. Sender should take as command line arguments the host name of receiver,
-port number of receiver, maximum sending window size, and timeout value (in
-seconds)
+1. Sender should take as command line arguments the (1) host name of receiver,
+(2) port number of receiver, (3) maximum sending window size, and (4) timeout 
+value (in seconds)
 
 2. The receiver should take as command line arguments, the port number it 
 should use and the receiving window size (r-max). 
