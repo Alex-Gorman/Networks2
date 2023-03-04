@@ -25,10 +25,8 @@ int main(int argc, char *argv[]) {
     char *buffer = NULL;
     struct sockaddr_in servaddr;
 
-    // create a UDP socket
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 
-    // set up the server address and port
     memset(&servaddr, 0, sizeof(servaddr));
     servaddr.sin_family = AF_INET;
     // servaddr.sin_port = htons(PORT);
@@ -43,7 +41,7 @@ int main(int argc, char *argv[]) {
 
     int windowSize = atoi(argv[3]);
 
-    int timeoutLength = atoi(argv[4]);
+    // int timeoutLength = atoi(argv[4]);
 
     /* Sequence number count */
     int msgSeqCount = 0;
@@ -171,7 +169,7 @@ int main(int argc, char *argv[]) {
         // }
 
 		// printf()
-		printf("Message sent: %s", buffer);
+		// printf("Message sent: %s", buffer);
 
 
 

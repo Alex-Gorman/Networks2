@@ -1,0 +1,7 @@
+My program does not fully implement the selective repeat sliding window. 
+It will correctly send the messages from the sender to the receiver. It
+will correctly sends acks from the receiver to the sender if you enter Y. 
+It will correctly queue the messages that haven't been acked and will send them
+again after a certain amount of time. But the actual window part is not correct
+for either the sender or receiver. It does not properly implement the sliding
+and will buffer too many messages or send too many messages after the timeouts.

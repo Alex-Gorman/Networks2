@@ -24,10 +24,13 @@ int main(int argc, char *argv[]) {
     char buffer[1024];
     struct sockaddr_in servaddr, cliaddr;
 
-    // create a UDP socket
+    if (argc != 3) {
+        fprintf(stderr,"usage: receiver port receiving-window-size \n");
+		exit(1);
+    }
+
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 
-    // set up the server address and port
     memset(&servaddr, 0, sizeof(servaddr));
     servaddr.sin_family = AF_INET;
     servaddr.sin_addr.s_addr = INADDR_ANY;
@@ -43,7 +46,7 @@ int main(int argc, char *argv[]) {
     /* message queue index */
     // int msgQueueIndexToAppend = 0;
 
-    int rWindow = atoi(argv[1]);
+    // int rWindow = atoi(argv[1]);
 
     while(1) {
         len = sizeof(cliaddr);
